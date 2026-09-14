@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <!-- Poniższe linijki sprawiają, że strona zachowuje się na telefonie jak aplikacja -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Gra w Państwa</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #1a1a1a; color: white; overflow: hidden; }
+        
+        #game { display: flex; width: 100vw; height: 100vh; flex-direction: column; } /* Na telefonie: góra i dół */
+        @media (min-width: 768px) { #game { flex-direction: row; } } /* Na komputerze: lewo i prawo */
+
+        .choice-btn {
+            flex: 1; border: none; font-size: 2rem; font-weight: bold; cursor: pointer; transition: background-color 0.2s;
+        }
+        /* Kontrastowe kolory stref */
+        #btn-1 { background-color: #e63946; color: white; }
+        #btn-1:hover { background-color: #d62828; }
+        #btn-2 { background-color: #457b9d; color: white; }
+        #btn-2:hover { background-color: #1d3557; }
+
+        #result {
+            display: none; flex-direction: column; justify-content: center; align-items: center;
+            width: 100vw; height: 100vh; background-color: #1a1a1a; text-align: center; padding: 20px;
+        }
+        #result h1 { font-size: 1.5rem; color: #a8a8a8; margin-bottom: 10px; font-weight: normal;}
+        #result h2 { font-size: 3rem; margin-bottom: 40px; }
+        
+        #restart-btn {
+            padding: 15px 30px; font-size: 1.2rem; border-radius: 30px; border: none;
+            background-color: white; color: black; cursor: pointer; font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ekran gry z dwoma przyciskami -->
+    <div id="game">
+        <button id="btn-1" class="choice-btn" onclick="nextRound()"></button>
+        <button id="btn-2" class="choice-btn" onclick="nextRound()"></button>
+    </div>
+
+    <!-- Ekran finałowy -->
+    <div id="result">
+        <h1>Twoje wymarzone państwo to:</h1>
+        <h2 id="result-country"></h2>
+        <button id="restart-btn" onclick="startGame()">Zagraj od nowa</button>
+    </div>
+
+    <script>
+        // Twoja "baza danych" - potem możesz tu wkleić wszystkie 200 państw
+        const allCountries = [
+            "Polska", "Estonia", "Czechy", "Słowacja", "Litwa", "Łotwa", "Niemcy", 
+            "Francja", "Hiszpania", "Włochy", "Portugalia", "Szwecja", "Norwegia", 
+            "Dania", "Finlandia", "Islandia", "Wielka Brytania", "Grecja"
+        ];
+
+        // Zmienne śledzące stan gry
+        let clicks = 0;
+        const maxClicks = 3; // Po ilu kliknięciach pokazujemy finał? (ustawione na 3 do testów)
+
+        const btn1 = document.getElementById('btn-1');
+        const btn2 = document.getElementById('btn-2');
+        const gameScreen = document.getElementById('game');
+        const resultScreen = document.getElementById('result');
+        const resultCountry = document.getElementById('result-country');
+
+        // Funkcja losująca losowy element z tablicy
+        function getRandomCountry() {
+            const randomIndex = Math.floor(Math.random() * allCountries.length);
+            return allCountries[randomIndex];
+        }
+
+        function startGame() {
+            clicks = 0;
+            gameScreen.style.display = 'flex';
+            resultScreen.style.display = 'none';
+            drawNewCountries();
+        }
+
+        function drawNewCountries() {
+            // Losujemy dwa różne państwa do wyświetlenia
+            let country1 = getRandomCountry();
+            let country2 = getRandomCountry();
+            
+            // Zabezpieczenie, żeby po obu stronach nie było tego samego państwa
+            while(country1 === country2) {
+                country2 = getRandomCountry();
+            }
+
+            btn1.innerText = country1;
+            btn2.innerText = country2;
+        }
+
+        function nextRound() {
+            clicks++;
+            
+            if (clicks >= maxClicks) {
+                // Koniec "drabinki" - chamsko losujemy ostateczny, absurdalny wynik
+                showResult();
+            } else {
+                // Kontynuujemy iluzję wyboru :)
+                drawNewCountries();
+            }
+        }
+
+        function showResult() {
+            gameScreen.style.display = 'none';
+            resultScreen.style.display = 'flex';
+            // Całkowicie losowe państwo, niezależnie od tego co klikano
+            resultCountry.innerText = getRandomCountry(); 
+        }
+
+        // Uruchomienie gry po załadowaniu strony
+        startGame();
+    </script>
+</body>
+</html>

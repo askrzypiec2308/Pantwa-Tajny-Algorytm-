@@ -17,6 +17,15 @@
         .choice-btn {
             flex: 1; border: none; font-size: 2rem; font-weight: bold; cursor: pointer; transition: background-color 0.2s;
         }
+
+        /* Styl dla GIF-a obracającej się Ziemii */
+        #earth-gif {
+            max-width: 150px; /* Maksymalna szerokość na komputerze */
+            width: 40%;       /* Szerokość na telefonie (procent ekranu) */
+            height: auto;     /* Zachowanie proporcji */
+            margin-bottom: 20px; /* Odstęp od napisu poniżej */
+        }
+
         /* Kontrastowe kolory stref */
         #btn-1 { background-color: #e63946; color: white; }
         #btn-1:hover { background-color: #d62828; }
@@ -47,6 +56,9 @@
     <!-- Ekran finałowy -->
     <div id="result">
         <h1>Twoje wymarzone państwo to:</h1>
+        
+        <img src="Ziemia.gif" id="earth-gif" alt="Obracająca się Ziemia">
+        
         <h2 id="result-country"></h2>
         <button id="restart-btn" onclick="startGame()">Zagraj od nowa</button>
     </div>

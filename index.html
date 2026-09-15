@@ -18,7 +18,7 @@
             --grid-line: rgba(255, 255, 255, 0.14);
             --grid-cell: 60px;
             --space-a: #1b1035;
-            --space-b: #0a0e27;
+            --space-b: #0a1027;
             --space-c: #0d1b2a;
             --glow-1: #2c9abf47;
             --glow-2: rgba(76, 133, 240, 0.22);
@@ -135,41 +135,89 @@
             font-size: 0.7rem; letter-spacing: 2px;
             color: rgba(255,255,255,0.85);
             z-index: 6; text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+            text-align: center; white-space: nowrap;
+        }
+
+        /* ---------- EKRAN PRZEJŚCIOWY (RUNDA 1 / RUNDA 2) ---------- */
+        #screen-interstitial {
+            flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; padding: 40px;
+            background: linear-gradient(135deg, var(--space-a), var(--space-b) 60%, var(--space-c));
+        }
+        #interstitial-earth {
+            position: relative; z-index: 100;
+            width: 90px; height: auto; image-rendering: pixelated;
+            margin-bottom: 26px;
+        }
+        .interstitial-label {
+            font-family: var(--font-display);
+            font-size: 0.6rem; letter-spacing: 2px;
+            color: #8892b0; margin-bottom: 16px;
+        }
+        #interstitial-title {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 11vw, 3.4rem);
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+        #interstitial-desc {
+            font-family: var(--font-country);
+            font-size: clamp(1.15rem, 5.2vw, 1.4rem);
+            color: #cfd3e6;
+            max-width: 320px;
+            line-height: 1.35;
+            margin-bottom: 40px;
         }
 
         /* ---------- EKRAN WYNIKU ---------- */
         #screen-result {
             flex-direction: column; align-items: center;
-            padding-top: calc(var(--grid-cell) * 3.2);
+            padding-top: calc(var(--grid-cell) * 1.9);
             background-color: var(--bg);
             text-align: center;
             position: relative;
         }
         #screen-result h2 {
             font-family: var(--font-display);
-            font-size: clamp(0.85rem, 3.6vw, 1.1rem);
+            font-size: clamp(0.8rem, 3.4vw, 1rem);
             color: #a8a8a8;
             letter-spacing: 1px;
-            margin-bottom: 28px;
+            margin-bottom: 26px;
             padding: 0 20px;
         }
-        #result-country {
-            font-family: var(--font-display);
-            font-size: clamp(1.8rem, 9vw, 3rem);
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-bottom: 12px;
-            padding: 0 12px;
+        .result-place {
+            display: flex; flex-direction: column; align-items: center;
+            padding: 0 16px;
         }
+        .place-label {
+            font-family: var(--font-display);
+            color: #7f7f7f;
+            letter-spacing: 1px;
+        }
+        .place-country {
+            font-family: var(--font-display);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .place-1 { margin-bottom: 20px; }
+        .place-1 .place-label { font-size: 0.6rem; margin-bottom: 8px; }
+        .place-1 .place-country { font-size: clamp(1.5rem, 7.5vw, 2.4rem); color: #ffd166; }
+        .place-2 { margin-bottom: 14px; }
+        .place-2 .place-label { font-size: 0.55rem; margin-bottom: 6px; }
+        .place-2 .place-country { font-size: clamp(1.1rem, 5.5vw, 1.6rem); color: #d9d9d9; }
+        .place-3 { margin-bottom: 14px; }
+        .place-3 .place-label { font-size: 0.5rem; margin-bottom: 6px; }
+        .place-3 .place-country { font-size: clamp(0.95rem, 4.6vw, 1.3rem); color: #b08d57; }
+
         #result-earth-wrap {
             position: absolute; bottom: -22%; left: 50%; transform: translateX(-50%);
             width: 130%; max-width: 620px;
             display: flex; justify-content: center;
             pointer-events: none;
         }
-        #result-earth {position: relative; z-index: 100; width: 86%; height: auto; image-rendering: pixelated; }
+        #result-earth { position: relative; z-index: 100; width: 86%; height: auto; image-rendering: pixelated; }
 
-        #restart-btn { position: relative; z-index: 2; margin-top: 10px; }
+        #restart-btn { position: relative; z-index: 2; margin-top: 6px; }
     </style>
 </head>
 <body>
@@ -187,18 +235,40 @@
         </div>
     </div>
 
+    <!-- Ekran przejściowy między rundami -->
+    <div id="screen-interstitial" class="screen">
+        <img src="Ziemia.gif" id="interstitial-earth" alt="">
+        <span class="interstitial-label" id="interstitial-label"></span>
+        <h1 id="interstitial-title"></h1>
+        <p id="interstitial-desc"></p>
+        <button class="pixel-pill" onclick="continueFromInterstitial()">Dalej</button>
+    </div>
+
     <!-- Ekran gry -->
     <div id="screen-game" class="screen">
         <div id="round-counter"></div>
-        <button id="btn-1" class="choice-btn" onclick="nextRound(1)"><span></span></button>
+        <button id="btn-1" class="choice-btn" onclick="choose(1)"><span></span></button>
         <img src="Ziemia.gif" id="game-earth" alt="">
-        <button id="btn-2" class="choice-btn" onclick="nextRound(2)"><span></span></button>
+        <button id="btn-2" class="choice-btn" onclick="choose(2)"><span></span></button>
     </div>
 
     <!-- Ekran finałowy -->
     <div id="screen-result" class="screen">
-        <h2>Twoje miejsce jest w</h2>
-        <h1 id="result-country"></h1>
+        <h2>Twoje wymarzone państwa to</h2>
+
+        <div class="result-place place-1">
+            <span class="place-label">1 miejsce</span>
+            <span class="place-country" id="result-place-1"></span>
+        </div>
+        <div class="result-place place-2">
+            <span class="place-label">2 miejsce</span>
+            <span class="place-country" id="result-place-2"></span>
+        </div>
+        <div class="result-place place-3">
+            <span class="place-label">3 miejsce</span>
+            <span class="place-country" id="result-place-3"></span>
+        </div>
+
         <div id="result-earth-wrap">
             <img src="Ziemia.gif" id="result-earth" alt="Obracająca się Ziemia">
         </div>
@@ -209,8 +279,12 @@
         // ============================================================
         // USTAWIENIA GRY
         // ============================================================
-        // Docelowo 24 rundy. Do szybkich testów zmień np. na 5.
-        const ROUNDS = 24;
+        // Runda 1: ROUND1_COUNT pojedynczych wyborów spośród losowych par państw.
+        // Runda 2: wybrane w rundzie 1 państwa parują się ze sobą (ROUND1_COUNT / 2
+        // pojedynków) - w ten sposób z 24 wyborów robi się "turniej" do 12 państw.
+        // Do szybkich testów zmień ROUND1_COUNT na mniejszą, parzystą liczbę (np. 4).
+        const ROUND1_COUNT = 24;
+        const ROUND2_COUNT = ROUND1_COUNT / 2;
 
         // ============================================================
         // BAZA PAŃSTW I TERYTORIÓW
@@ -284,62 +358,160 @@
         // ============================================================
         // STAN GRY
         // ============================================================
-        let round = 0;
+        let phase = 1;            // 1 = wstępne wybory, 2 = pojedynki finałowe
+        let phase1Index = 0;      // 0..ROUND1_COUNT-1
+        let phase2Index = 0;      // 0..ROUND2_COUNT-1
+        let selectedPhase1 = [];  // państwa wybrane w rundzie 1 (max ROUND1_COUNT)
+        let phase2Pairs = [];     // pary do rundy 2, zbudowane z selectedPhase1
+        let finalTwelve = [];     // zwycięzcy rundy 2 (max ROUND2_COUNT)
 
         const screenStart = document.getElementById('screen-start');
+        const screenInterstitial = document.getElementById('screen-interstitial');
         const screenGame = document.getElementById('screen-game');
         const screenResult = document.getElementById('screen-result');
+
+        const interstitialLabel = document.getElementById('interstitial-label');
+        const interstitialTitle = document.getElementById('interstitial-title');
+        const interstitialDesc = document.getElementById('interstitial-desc');
+        let pendingAction = null; // funkcja wywoływana po kliknięciu "Dalej"
 
         const btn1 = document.getElementById('btn-1');
         const btn2 = document.getElementById('btn-2');
         const span1 = btn1.querySelector('span');
         const span2 = btn2.querySelector('span');
         const roundCounter = document.getElementById('round-counter');
-        const resultCountry = document.getElementById('result-country');
+        const resultPlace1 = document.getElementById('result-place-1');
+        const resultPlace2 = document.getElementById('result-place-2');
+        const resultPlace3 = document.getElementById('result-place-3');
 
         function showScreen(screen) {
-            [screenStart, screenGame, screenResult].forEach(s => s.classList.remove('active'));
+            [screenStart, screenInterstitial, screenGame, screenResult].forEach(s => s.classList.remove('active'));
             screen.classList.add('active');
+        }
+
+        function showInterstitial(label, title, desc, nextFn) {
+            interstitialLabel.innerText = label;
+            interstitialTitle.innerText = title;
+            interstitialDesc.innerText = desc;
+            pendingAction = nextFn;
+            showScreen(screenInterstitial);
+        }
+
+        function continueFromInterstitial() {
+            if (pendingAction) pendingAction();
         }
 
         function getRandomCountry() {
             return allCountries[Math.floor(Math.random() * allCountries.length)];
         }
 
+        function getRandomDistinctFrom(exclude) {
+            let country = getRandomCountry();
+            while (exclude.includes(country)) {
+                country = getRandomCountry();
+            }
+            return country;
+        }
+
+        // Tasowanie tablicy (Fisher-Yates), żeby pary w rundzie 2 nie zależały
+        // od kolejności klikania w rundzie 1.
+        function shuffle(array) {
+            const copy = array.slice();
+            for (let i = copy.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [copy[i], copy[j]] = [copy[j], copy[i]];
+            }
+            return copy;
+        }
+
         function beginGame() {
-            round = 0;
-            showScreen(screenGame);
-            drawNewCountries();
+            phase = 1;
+            phase1Index = 0;
+            phase2Index = 0;
+            selectedPhase1 = [];
+            phase2Pairs = [];
+            finalTwelve = [];
+            showInterstitial(
+                'FAZA 1 Z 2',
+                'RUNDA 1',
+                ROUND1_COUNT + ' pojedynczych wyborów. Za każdym razem kliknij państwo, które bardziej Ci się podoba.',
+                () => { showScreen(screenGame); drawPhase1Round(); }
+            );
         }
 
         function startGame() {
             showScreen(screenStart);
         }
 
-        function drawNewCountries() {
-            let country1 = getRandomCountry();
-            let country2 = getRandomCountry();
-            while (country1 === country2) {
-                country2 = getRandomCountry();
-            }
-            span1.innerText = country1;
-            span2.innerText = country2;
-            roundCounter.innerText = (round + 1) + ' / ' + ROUNDS;
+        function updateRoundCounter(label, current, total) {
+            roundCounter.innerText = label + ' \u00b7 ' + current + ' / ' + total;
         }
 
-        function nextRound() {
-            round++;
-            if (round >= ROUNDS) {
-                showResult();
+        function drawPhase1Round() {
+            const country1 = getRandomCountry();
+            const country2 = getRandomDistinctFrom([country1]);
+            span1.innerText = country1;
+            span2.innerText = country2;
+            updateRoundCounter('RUNDA 1', phase1Index + 1, ROUND1_COUNT);
+        }
+
+        function drawPhase2Round() {
+            const pair = phase2Pairs[phase2Index];
+            span1.innerText = pair[0];
+            span2.innerText = pair[1];
+            updateRoundCounter('RUNDA 2', phase2Index + 1, ROUND2_COUNT);
+        }
+
+        function buildPhase2Pairs() {
+            const shuffled = shuffle(selectedPhase1);
+            phase2Pairs = [];
+            for (let i = 0; i < shuffled.length; i += 2) {
+                phase2Pairs.push([shuffled[i], shuffled[i + 1]]);
+            }
+        }
+
+        function choose(which) {
+            const chosenCountry = which === 1 ? span1.innerText : span2.innerText;
+
+            if (phase === 1) {
+                selectedPhase1.push(chosenCountry);
+                phase1Index++;
+                if (phase1Index >= ROUND1_COUNT) {
+                    buildPhase2Pairs();
+                    phase = 2;
+                    phase2Index = 0;
+                    showInterstitial(
+                        'FAZA 2 Z 2',
+                        'RUNDA 2',
+                        'Twoje wybrane ' + ROUND1_COUNT + ' państw zmierzą się teraz ze sobą w ' + ROUND2_COUNT + ' pojedynkach.',
+                        () => { showScreen(screenGame); drawPhase2Round(); }
+                    );
+                } else {
+                    drawPhase1Round();
+                }
             } else {
-                drawNewCountries();
+                finalTwelve.push(chosenCountry);
+                phase2Index++;
+                if (phase2Index >= ROUND2_COUNT) {
+                    showResult();
+                } else {
+                    drawPhase2Round();
+                }
             }
         }
 
         function showResult() {
+            // 1 miejsce: losowe państwo spośród 12 finalistów rundy 2.
+            const place1 = finalTwelve[Math.floor(Math.random() * finalTwelve.length)];
+            // 2 i 3 miejsce: całkowicie losowe państwa z całej bazy, niezależne od gry.
+            const place2 = getRandomDistinctFrom([place1]);
+            const place3 = getRandomDistinctFrom([place1, place2]);
+
+            resultPlace1.innerText = place1;
+            resultPlace2.innerText = place2;
+            resultPlace3.innerText = place3;
+
             showScreen(screenResult);
-            // Całkowicie losowe państwo, niezależnie od tego co klikano
-            resultCountry.innerText = getRandomCountry();
         }
     </script>
 </body>

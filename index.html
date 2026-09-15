@@ -7,128 +7,340 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Gra w Państwa</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        body { background-color: #1a1a1a; color: white; overflow: hidden; }
-        
-        #game { display: flex; width: 100vw; height: 100vh; flex-direction: column; } /* Na telefonie: góra i dół */
-        @media (min-width: 768px) { #game { flex-direction: row; } } /* Na komputerze: lewo i prawo */
+        :root {
+            --bg: #0a0a0a;
+            --grid-line: rgba(255, 255, 255, 0.14);
+            --grid-cell: 60px;
+            --space-a: #1b1035;
+            --space-b: #0a0e27;
+            --space-c: #0d1b2a;
+            --glow-1: #2c9abf47;
+            --glow-2: rgba(76, 133, 240, 0.22);
+            --font-display: 'Press Start 2P', monospace;
+            --font-country: 'VT323', monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        html, body { background-color: var(--bg); color: white; overflow: hidden; height: 100%; }
+        body { font-family: var(--font-country); }
+
+        /* Siatka w tle - widoczna na wszystkich ekranach, tak jak na moodboardzie */
+        .grid-overlay {
+            position: fixed; inset: 0; z-index: 50; pointer-events: none;
+            background-image:
+                linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+                linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+            background-size: var(--grid-cell) var(--grid-cell);
+        }
+
+        .screen {
+            position: fixed; inset: 0; width: 100vw; height: 100vh;
+            display: none;
+        }
+        .screen.active { display: flex; }
+
+        /* ---------- EKRAN STARTOWY ---------- */
+        #screen-start {
+            flex-direction: column; align-items: flex-start; justify-content: flex-start;
+            padding: calc(var(--grid-cell) * 1.1) 0 0 calc(var(--grid-cell) * 0.5);
+            background-color: var(--bg);
+        }
+        #screen-start h1 {
+            font-family: var(--font-display);
+            font-size: clamp(1.6rem, 8vw, 2.6rem);
+            line-height: 1.55;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        #start-earth-wrap {
+            flex: 1; width: 100%;
+            display: flex; align-items: center; justify-content: center;
+        }
+        #start-earth {
+            position: relative; z-index: 100;
+            width: 46%; max-width: 242px; height: auto;
+            image-rendering: pixelated;
+        }
+        .start-btn-wrap {
+            width: 100%; display: flex; justify-content: center;
+            padding-bottom: calc(var(--grid-cell) * 1.4);
+        }
+        .pixel-pill {
+            font-family: var(--font-display);
+            font-size: clamp(1rem, 5vw, 1.5rem);
+            letter-spacing: 2px;
+            color: white;
+            background: transparent;
+            border: 3px solid white;
+            border-radius: 60px;
+            padding: 18px 48px;
+            cursor: pointer;
+        }
+        .pixel-pill:active { background: white; color: black; }
+
+        /* ---------- EKRAN GRY ---------- */
+        #screen-game {
+            flex-direction: column; position: relative;
+            background: linear-gradient(to bottom, var(--space-a) 0%, var(--space-b) 55%, var(--space-c) 100%);
+        }
+        @media (min-width: 768px) {
+            #screen-game {
+                flex-direction: row;
+                background: linear-gradient(to right, var(--space-a) 0%, var(--space-b) 55%, var(--space-c) 100%);
+            }
+        }
 
         .choice-btn {
-            flex: 1; border: none; font-size: 2rem; font-weight: bold; cursor: pointer; transition: background-color 0.2s;
+            flex: 1; border: none; cursor: pointer; position: relative;
+            display: flex; align-items: center; justify-content: center;
+            padding: 10% 8%;
+            background: transparent;
+            transition: background 0.2s ease;
+        }
+        #btn-1 { background: radial-gradient(circle at 50% 35%, var(--glow-1), transparent 70%); }
+        #btn-2 { background: radial-gradient(circle at 50% 65%, var(--glow-2), transparent 70%); }
+        @media (min-width: 768px) {
+            #btn-1 { background: radial-gradient(circle at 35% 50%, var(--glow-1), transparent 70%); }
+            #btn-2 { background: radial-gradient(circle at 65% 50%, var(--glow-2), transparent 70%); }
+        }
+        .choice-btn:active { filter: brightness(1.3); }
+        .choice-btn span {
+            font-family: var(--font-country);
+            font-weight: 400;
+            font-size: clamp(2.1rem, 9vw, 3.6rem);
+            letter-spacing: 0.5px;
+            color: white;
+            text-align: center;
+            line-height: 1.1;
         }
 
-        /* Styl dla GIF-a obracającej się Ziemii */
-        #earth-gif {
-            max-width: 150px; /* Maksymalna szerokość na komputerze */
-            width: 40%;       /* Szerokość na telefonie (procent ekranu) */
-            height: auto;     /* Zachowanie proporcji */
-            margin-bottom: 20px; /* Odstęp od napisu poniżej */
+        #game-earth {
+            position: absolute; top: 50%; left: 50%;
+            width: 97px; height: auto;
+            transform: translate(-50%, -50%);
+            image-rendering: pixelated;
+            z-index: 100; pointer-events: none;
+        }
+        @media (min-width: 768px) { #game-earth { width: 121px; } }
+
+        #round-counter {
+            position: absolute; top: calc(var(--grid-cell) * 0.4); left: 50%; transform: translateX(-50%);
+            font-family: var(--font-display);
+            font-size: 0.7rem; letter-spacing: 2px;
+            color: rgba(255,255,255,0.85);
+            z-index: 6; text-shadow: 0 2px 4px rgba(0,0,0,0.6);
         }
 
-        /* Kontrastowe kolory stref */
-        #btn-1 { background-color: #e63946; color: white; }
-        #btn-1:hover { background-color: #d62828; }
-        #btn-2 { background-color: #457b9d; color: white; }
-        #btn-2:hover { background-color: #1d3557; }
+        /* ---------- EKRAN WYNIKU ---------- */
+        #screen-result {
+            flex-direction: column; align-items: center;
+            padding-top: calc(var(--grid-cell) * 3.2);
+            background-color: var(--bg);
+            text-align: center;
+            position: relative;
+        }
+        #screen-result h2 {
+            font-family: var(--font-display);
+            font-size: clamp(0.85rem, 3.6vw, 1.1rem);
+            color: #a8a8a8;
+            letter-spacing: 1px;
+            margin-bottom: 28px;
+            padding: 0 20px;
+        }
+        #result-country {
+            font-family: var(--font-display);
+            font-size: clamp(1.8rem, 9vw, 3rem);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            padding: 0 12px;
+        }
+        #result-earth-wrap {
+            position: absolute; bottom: -22%; left: 50%; transform: translateX(-50%);
+            width: 130%; max-width: 620px;
+            display: flex; justify-content: center;
+            pointer-events: none;
+        }
+        #result-earth {position: relative; z-index: 100; width: 86%; height: auto; image-rendering: pixelated; }
 
-        #result {
-            display: none; flex-direction: column; justify-content: center; align-items: center;
-            width: 100vw; height: 100vh; background-color: #1a1a1a; text-align: center; padding: 20px;
-        }
-        #result h1 { font-size: 1.5rem; color: #a8a8a8; margin-bottom: 10px; font-weight: normal;}
-        #result h2 { font-size: 3rem; margin-bottom: 40px; }
-        
-        #restart-btn {
-            padding: 15px 30px; font-size: 1.2rem; border-radius: 30px; border: none;
-            background-color: white; color: black; cursor: pointer; font-weight: bold;
-        }
+        #restart-btn { position: relative; z-index: 2; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <!-- Ekran gry z dwoma przyciskami -->
-    <div id="game">
-        <button id="btn-1" class="choice-btn" onclick="nextRound()"></button>
-        <button id="btn-2" class="choice-btn" onclick="nextRound()"></button>
+    <div class="grid-overlay"></div>
+
+    <!-- Ekran startowy -->
+    <div id="screen-start" class="screen active">
+        <h1>Wybierz<br>kraj</h1>
+        <div id="start-earth-wrap">
+            <img src="Ziemia.gif" id="start-earth" alt="Obracająca się Ziemia">
+        </div>
+        <div class="start-btn-wrap">
+            <button class="pixel-pill" onclick="beginGame()">Start</button>
+        </div>
+    </div>
+
+    <!-- Ekran gry -->
+    <div id="screen-game" class="screen">
+        <div id="round-counter"></div>
+        <button id="btn-1" class="choice-btn" onclick="nextRound(1)"><span></span></button>
+        <img src="Ziemia.gif" id="game-earth" alt="">
+        <button id="btn-2" class="choice-btn" onclick="nextRound(2)"><span></span></button>
     </div>
 
     <!-- Ekran finałowy -->
-    <div id="result">
-        <h1>Twoje wymarzone państwo to:</h1>
-        
-        <img src="Ziemia.gif" id="earth-gif" alt="Obracająca się Ziemia">
-        
-        <h2 id="result-country"></h2>
-        <button id="restart-btn" onclick="startGame()">Zagraj od nowa</button>
+    <div id="screen-result" class="screen">
+        <h2>Twoje miejsce jest w</h2>
+        <h1 id="result-country"></h1>
+        <div id="result-earth-wrap">
+            <img src="Ziemia.gif" id="result-earth" alt="Obracająca się Ziemia">
+        </div>
+        <button id="restart-btn" class="pixel-pill" onclick="startGame()">Zagraj od nowa</button>
     </div>
 
     <script>
-        // Twoja "baza danych" - potem możesz tu wkleić wszystkie 200 państw
-        const allCountries = [
-            "Polska", "Estonia", "Czechy", "Słowacja", "Litwa", "Łotwa", "Niemcy", 
-            "Francja", "Hiszpania", "Włochy", "Portugalia", "Szwecja", "Norwegia", 
-            "Dania", "Finlandia", "Islandia", "Wielka Brytania", "Grecja"
+        // ============================================================
+        // USTAWIENIA GRY
+        // ============================================================
+        // Docelowo 24 rundy. Do szybkich testów zmień np. na 5.
+        const ROUNDS = 24;
+
+        // ============================================================
+        // BAZA PAŃSTW I TERYTORIÓW
+        // ============================================================
+        const countries = [
+            // Europa
+            "Polska", "Niemcy", "Francja", "Hiszpania", "Włochy", "Portugalia",
+            "Wielka Brytania", "Irlandia", "Holandia", "Belgia", "Luksemburg",
+            "Szwajcaria", "Austria", "Czechy", "Słowacja", "Węgry", "Słowenia",
+            "Chorwacja", "Bośnia i Hercegowina", "Serbia", "Czarnogóra",
+            "Macedonia Północna", "Albania", "Kosowo", "Grecja", "Bułgaria",
+            "Rumunia", "Mołdawia", "Ukraina", "Białoruś", "Litwa", "Łotwa",
+            "Estonia", "Rosja", "Finlandia", "Szwecja", "Norwegia", "Dania",
+            "Islandia", "Malta", "Cypr", "San Marino", "Monako", "Liechtenstein",
+            "Andora", "Watykan",
+            // Azja
+            "Chiny", "Japonia", "Korea Południowa", "Korea Północna", "Mongolia",
+            "Indie", "Pakistan", "Bangladesz", "Sri Lanka", "Nepal", "Bhutan",
+            "Malediwy", "Afganistan", "Iran", "Irak", "Arabia Saudyjska", "Jemen",
+            "Oman", "Zjednoczone Emiraty Arabskie", "Katar", "Bahrajn", "Kuwejt",
+            "Jordania", "Liban", "Syria", "Izrael", "Palestyna", "Turcja",
+            "Kazachstan", "Uzbekistan", "Turkmenistan", "Tadżykistan", "Kirgistan",
+            "Azerbejdżan", "Armenia", "Gruzja", "Tajwan", "Wietnam", "Laos",
+            "Kambodża", "Tajlandia", "Mjanma", "Malezja", "Singapur", "Indonezja",
+            "Brunei", "Filipiny", "Timor Wschodni",
+            // Afryka
+            "Egipt", "Libia", "Tunezja", "Algieria", "Maroko", "Mauretania",
+            "Mali", "Niger", "Czad", "Sudan", "Sudan Południowy", "Erytrea",
+            "Dżibuti", "Etiopia", "Somalia", "Kenia", "Uganda", "Tanzania",
+            "Rwanda", "Burundi", "Demokratyczna Republika Konga",
+            "Republika Konga", "Gabon", "Gwinea Równikowa", "Kamerun",
+            "Republika Środkowoafrykańska", "Nigeria", "Benin", "Togo", "Ghana",
+            "Wybrzeże Kości Słoniowej", "Liberia", "Sierra Leone", "Gwinea",
+            "Gwinea Bissau", "Senegal", "Gambia", "Republika Zielonego Przylądka",
+            "Zambia", "Zimbabwe", "Malawi", "Mozambik", "Madagaskar", "Mauritius",
+            "Seszele", "Komory", "Angola", "Namibia", "Botswana", "Eswatini",
+            "Lesotho", "Republika Południowej Afryki",
+            // Ameryka Północna
+            "Stany Zjednoczone", "Kanada", "Meksyk", "Gwatemala", "Belize",
+            "Honduras", "Salwador", "Nikaragua", "Kostaryka", "Panama", "Kuba",
+            "Jamajka", "Haiti", "Dominikana", "Bahamy", "Barbados",
+            "Trynidad i Tobago", "Grenada", "Saint Lucia",
+            "Saint Vincent i Grenadyny", "Antigua i Barbuda", "Dominika",
+            "Saint Kitts i Nevis",
+            // Ameryka Południowa
+            "Brazylia", "Argentyna", "Chile", "Peru", "Kolumbia", "Wenezuela",
+            "Ekwador", "Boliwia", "Paragwaj", "Urugwaj", "Gujana", "Surinam",
+            // Oceania
+            "Australia", "Nowa Zelandia", "Papua-Nowa Gwinea", "Fidżi",
+            "Vanuatu", "Wyspy Salomona", "Samoa", "Tonga", "Kiribati", "Tuvalu",
+            "Nauru", "Palau", "Mikronezja", "Wyspy Marshalla"
         ];
 
-        // Zmienne śledzące stan gry
-        let clicks = 0;
-        const maxClicks = 3; // Po ilu kliknięciach pokazujemy finał? (ustawione na 3 do testów)
+        const territories = [
+            "Grenlandia", "Portoryko", "Bermudy", "Hongkong", "Makau",
+            "Gibraltar", "Falklandy", "Kajmany", "Brytyjskie Wyspy Dziewicze",
+            "Amerykańskie Wyspy Dziewicze", "Turks i Caicos", "Anguilla",
+            "Montserrat", "Wyspa Man", "Guernsey", "Jersey", "Nowa Kaledonia",
+            "Polinezja Francuska", "Wyspy Owcze", "Aruba", "Curaçao",
+            "Sint Maarten", "Guam", "Samoa Amerykańskie",
+            "Wyspy Mariany Północne", "Wyspa Bożego Narodzenia",
+            "Wyspy Kokosowe", "Norfolk", "Tokelau", "Niue", "Wyspy Cooka",
+            "Reunion", "Majotta", "Gujana Francuska", "Saint-Pierre i Miquelon",
+            "Saint-Barthélemy", "Saint-Martin", "Wallis i Futuna",
+            "Akrotiri i Dhekelia", "Święta Helena, Wniebowstąpienia i Tristan da Cunha",
+            "Sahara Zachodnia", "Somaliland"
+        ];
+
+        const allCountries = countries.concat(territories);
+
+        // ============================================================
+        // STAN GRY
+        // ============================================================
+        let round = 0;
+
+        const screenStart = document.getElementById('screen-start');
+        const screenGame = document.getElementById('screen-game');
+        const screenResult = document.getElementById('screen-result');
 
         const btn1 = document.getElementById('btn-1');
         const btn2 = document.getElementById('btn-2');
-        const gameScreen = document.getElementById('game');
-        const resultScreen = document.getElementById('result');
+        const span1 = btn1.querySelector('span');
+        const span2 = btn2.querySelector('span');
+        const roundCounter = document.getElementById('round-counter');
         const resultCountry = document.getElementById('result-country');
 
-        // Funkcja losująca losowy element z tablicy
-        function getRandomCountry() {
-            const randomIndex = Math.floor(Math.random() * allCountries.length);
-            return allCountries[randomIndex];
+        function showScreen(screen) {
+            [screenStart, screenGame, screenResult].forEach(s => s.classList.remove('active'));
+            screen.classList.add('active');
         }
 
-        function startGame() {
-            clicks = 0;
-            gameScreen.style.display = 'flex';
-            resultScreen.style.display = 'none';
+        function getRandomCountry() {
+            return allCountries[Math.floor(Math.random() * allCountries.length)];
+        }
+
+        function beginGame() {
+            round = 0;
+            showScreen(screenGame);
             drawNewCountries();
         }
 
+        function startGame() {
+            showScreen(screenStart);
+        }
+
         function drawNewCountries() {
-            // Losujemy dwa różne państwa do wyświetlenia
             let country1 = getRandomCountry();
             let country2 = getRandomCountry();
-            
-            // Zabezpieczenie, żeby po obu stronach nie było tego samego państwa
-            while(country1 === country2) {
+            while (country1 === country2) {
                 country2 = getRandomCountry();
             }
-
-            btn1.innerText = country1;
-            btn2.innerText = country2;
+            span1.innerText = country1;
+            span2.innerText = country2;
+            roundCounter.innerText = (round + 1) + ' / ' + ROUNDS;
         }
 
         function nextRound() {
-            clicks++;
-            
-            if (clicks >= maxClicks) {
-                // Koniec "drabinki" - chamsko losujemy ostateczny, absurdalny wynik
+            round++;
+            if (round >= ROUNDS) {
                 showResult();
             } else {
-                // Kontynuujemy iluzję wyboru :)
                 drawNewCountries();
             }
         }
 
         function showResult() {
-            gameScreen.style.display = 'none';
-            resultScreen.style.display = 'flex';
+            showScreen(screenResult);
             // Całkowicie losowe państwo, niezależnie od tego co klikano
-            resultCountry.innerText = getRandomCountry(); 
+            resultCountry.innerText = getRandomCountry();
         }
-
-        // Uruchomienie gry po załadowaniu strony
-        startGame();
     </script>
 </body>
 </html>

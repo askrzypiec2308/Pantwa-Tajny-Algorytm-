@@ -18,7 +18,7 @@
             --grid-line: rgba(255, 255, 255, 0.14);
             --grid-cell: 60px;
             --space-a: #1b1035;
-            --space-b: #0a1027;
+            --space-b: #0a0e27;
             --space-c: #0d1b2a;
             --glow-1: #2c9abf47;
             --glow-2: rgba(76, 133, 240, 0.22);
@@ -84,6 +84,86 @@
         }
         .pixel-pill:active { background: white; color: black; }
 
+        /* ---------- EKRAN WYBORU TRYBU ---------- */
+        #screen-mode {
+            flex-direction: column; align-items: flex-start; justify-content: flex-start;
+            padding: calc(var(--grid-cell) * 1.1) calc(var(--grid-cell) * 0.5) calc(var(--grid-cell) * 0.6);
+            background-color: var(--bg);
+        }
+        #screen-mode h1 {
+            font-family: var(--font-display);
+            font-size: clamp(1.5rem, 7.5vw, 2.3rem);
+            line-height: 1.5;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: calc(var(--grid-cell) * 0.6);
+        }
+        .mode-list {
+            flex: 1; width: 100%;
+            display: flex; flex-direction: column; justify-content: center;
+            gap: 16px;
+            padding-right: calc(var(--grid-cell) * 0.5);
+            padding-bottom: calc(var(--grid-cell) * 1.2);
+        }
+        .mode-btn {
+            width: 100%;
+            display: flex; flex-direction: column; align-items: flex-start;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(255, 255, 255, 0.35);
+            border-radius: 4px;
+            padding: 16px 18px;
+            cursor: pointer;
+            text-align: left;
+        }
+        .mode-btn:active {
+            border-color: #4dd8ff;
+            background: rgba(77, 216, 255, 0.1);
+        }
+        .mode-name {
+            font-family: var(--font-display);
+            font-size: clamp(0.85rem, 3.8vw, 1.05rem);
+            letter-spacing: 1px;
+            color: white;
+        }
+        .mode-detail {
+            font-family: var(--font-country);
+            font-size: clamp(1rem, 4.4vw, 1.2rem);
+            color: #9aa0b4;
+            line-height: 1.2;
+        }
+
+        /* ---------- EKRAN PRZEJŚCIOWY (RUNDA / KONTYNENT) ---------- */
+        #screen-interstitial {
+            flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; padding: 40px;
+            background: linear-gradient(135deg, var(--space-a), var(--space-b) 60%, var(--space-c));
+        }
+        #interstitial-earth {
+            position: relative; z-index: 100;
+            width: 90px; height: auto; image-rendering: pixelated;
+            margin-bottom: 26px;
+        }
+        .interstitial-label {
+            font-family: var(--font-display);
+            font-size: 0.6rem; letter-spacing: 2px;
+            color: #8892b0; margin-bottom: 16px;
+        }
+        #interstitial-title {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 11vw, 3.4rem);
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+        #interstitial-desc {
+            font-family: var(--font-country);
+            font-size: clamp(1.15rem, 5.2vw, 1.4rem);
+            color: #cfd3e6;
+            max-width: 320px;
+            line-height: 1.35;
+            margin-bottom: 40px;
+        }
+
         /* ---------- EKRAN GRY ---------- */
         #screen-game {
             flex-direction: column; position: relative;
@@ -136,37 +216,6 @@
             color: rgba(255,255,255,0.85);
             z-index: 6; text-shadow: 0 2px 4px rgba(0,0,0,0.6);
             text-align: center; white-space: nowrap;
-        }
-
-        /* ---------- EKRAN PRZEJŚCIOWY (RUNDA 1 / RUNDA 2) ---------- */
-        #screen-interstitial {
-            flex-direction: column; align-items: center; justify-content: center;
-            text-align: center; padding: 40px;
-            background: linear-gradient(135deg, var(--space-a), var(--space-b) 60%, var(--space-c));
-        }
-        #interstitial-earth {
-            position: relative; z-index: 100;
-            width: 90px; height: auto; image-rendering: pixelated;
-            margin-bottom: 26px;
-        }
-        .interstitial-label {
-            font-family: var(--font-display);
-            font-size: 0.6rem; letter-spacing: 2px;
-            color: #8892b0; margin-bottom: 16px;
-        }
-        #interstitial-title {
-            font-family: var(--font-display);
-            font-size: clamp(2rem, 11vw, 3.4rem);
-            letter-spacing: 2px;
-            margin-bottom: 20px;
-        }
-        #interstitial-desc {
-            font-family: var(--font-country);
-            font-size: clamp(1.15rem, 5.2vw, 1.4rem);
-            color: #cfd3e6;
-            max-width: 320px;
-            line-height: 1.35;
-            margin-bottom: 40px;
         }
 
         /* ---------- EKRAN WYNIKU ---------- */
@@ -231,11 +280,34 @@
             <img src="Ziemia.gif" id="start-earth" alt="Obracająca się Ziemia">
         </div>
         <div class="start-btn-wrap">
-            <button class="pixel-pill" onclick="beginGame()">Start</button>
+            <button class="pixel-pill" onclick="showScreen(screenMode)">Start</button>
         </div>
     </div>
 
-    <!-- Ekran przejściowy między rundami -->
+    <!-- Ekran wyboru trybu -->
+    <div id="screen-mode" class="screen">
+        <h1>Wybierz<br>tryb</h1>
+        <div class="mode-list">
+            <button class="mode-btn" onclick="selectMode('short')">
+                <span class="mode-name">Krótki</span>
+                <span class="mode-detail">12 rund</span>
+            </button>
+            <button class="mode-btn" onclick="selectMode('medium')">
+                <span class="mode-name">Średni</span>
+                <span class="mode-detail">24 rundy</span>
+            </button>
+            <button class="mode-btn" onclick="selectMode('long')">
+                <span class="mode-name">Długi</span>
+                <span class="mode-detail">36 rund</span>
+            </button>
+            <button class="mode-btn" onclick="selectMode('ultimate')">
+                <span class="mode-name">Ultimate</span>
+                <span class="mode-detail">Wszystkie kraje i terytoria, kontynent po kontynencie</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Ekran przejściowy między rundami / kontynentami -->
     <div id="screen-interstitial" class="screen">
         <img src="Ziemia.gif" id="interstitial-earth" alt="">
         <span class="interstitial-label" id="interstitial-label"></span>
@@ -272,25 +344,23 @@
         <div id="result-earth-wrap">
             <img src="Ziemia.gif" id="result-earth" alt="Obracająca się Ziemia">
         </div>
-        <button id="restart-btn" class="pixel-pill" onclick="startGame()">Zagraj od nowa</button>
+        <button id="restart-btn" class="pixel-pill" onclick="backToModeSelect()">Zagraj od nowa</button>
     </div>
 
     <script>
         // ============================================================
-        // USTAWIENIA GRY
+        // TRYBY GRY
         // ============================================================
-        // Runda 1: ROUND1_COUNT pojedynczych wyborów spośród losowych par państw.
-        // Runda 2: wybrane w rundzie 1 państwa parują się ze sobą (ROUND1_COUNT / 2
-        // pojedynków) - w ten sposób z 24 wyborów robi się "turniej" do 12 państw.
-        // Do szybkich testów zmień ROUND1_COUNT na mniejszą, parzystą liczbę (np. 4).
-        const ROUND1_COUNT = 24;
-        const ROUND2_COUNT = ROUND1_COUNT / 2;
+        // short/medium/long: N pojedynczych wyborów z całej puli państw i
+        // terytoriów, bez powtórek (każde państwo pojawia się maks. raz
+        // w rundzie 1). ultimate: idziemy kontynent po kontynencie -
+        // każdy kontynent to osobna "podrunda" bez powtórek wewnątrz siebie.
+        const MODE_ROUNDS = { short: 12, medium: 24, long: 36 };
 
         // ============================================================
-        // BAZA PAŃSTW I TERYTORIÓW
+        // BAZA PAŃSTW I TERYTORIÓW, POGRUPOWANA KONTYNENTAMI
         // ============================================================
-        const countries = [
-            // Europa
+        const EUROPE = [
             "Polska", "Niemcy", "Francja", "Hiszpania", "Włochy", "Portugalia",
             "Wielka Brytania", "Irlandia", "Holandia", "Belgia", "Luksemburg",
             "Szwajcaria", "Austria", "Czechy", "Słowacja", "Węgry", "Słowenia",
@@ -299,8 +369,11 @@
             "Rumunia", "Mołdawia", "Ukraina", "Białoruś", "Litwa", "Łotwa",
             "Estonia", "Rosja", "Finlandia", "Szwecja", "Norwegia", "Dania",
             "Islandia", "Malta", "Cypr", "San Marino", "Monako", "Liechtenstein",
-            "Andora", "Watykan",
-            // Azja
+            "Andora", "Watykan", "Wyspa Man", "Guernsey", "Jersey", "Gibraltar",
+            "Wyspy Owcze", "Akrotiri i Dhekelia"
+        ];
+
+        const ASIA = [
             "Chiny", "Japonia", "Korea Południowa", "Korea Północna", "Mongolia",
             "Indie", "Pakistan", "Bangladesz", "Sri Lanka", "Nepal", "Bhutan",
             "Malediwy", "Afganistan", "Iran", "Irak", "Arabia Saudyjska", "Jemen",
@@ -309,8 +382,10 @@
             "Kazachstan", "Uzbekistan", "Turkmenistan", "Tadżykistan", "Kirgistan",
             "Azerbejdżan", "Armenia", "Gruzja", "Tajwan", "Wietnam", "Laos",
             "Kambodża", "Tajlandia", "Mjanma", "Malezja", "Singapur", "Indonezja",
-            "Brunei", "Filipiny", "Timor Wschodni",
-            // Afryka
+            "Brunei", "Filipiny", "Timor Wschodni", "Hongkong", "Makau"
+        ];
+
+        const AFRICA = [
             "Egipt", "Libia", "Tunezja", "Algieria", "Maroko", "Mauretania",
             "Mali", "Niger", "Czad", "Sudan", "Sudan Południowy", "Erytrea",
             "Dżibuti", "Etiopia", "Somalia", "Kenia", "Uganda", "Tanzania",
@@ -322,50 +397,65 @@
             "Zambia", "Zimbabwe", "Malawi", "Mozambik", "Madagaskar", "Mauritius",
             "Seszele", "Komory", "Angola", "Namibia", "Botswana", "Eswatini",
             "Lesotho", "Republika Południowej Afryki",
-            // Ameryka Północna
+            "Święta Helena, Wniebowstąpienia i Tristan da Cunha", "Majotta",
+            "Reunion", "Sahara Zachodnia", "Somaliland"
+        ];
+
+        const NORTH_AMERICA = [
             "Stany Zjednoczone", "Kanada", "Meksyk", "Gwatemala", "Belize",
             "Honduras", "Salwador", "Nikaragua", "Kostaryka", "Panama", "Kuba",
             "Jamajka", "Haiti", "Dominikana", "Bahamy", "Barbados",
             "Trynidad i Tobago", "Grenada", "Saint Lucia",
             "Saint Vincent i Grenadyny", "Antigua i Barbuda", "Dominika",
-            "Saint Kitts i Nevis",
-            // Ameryka Południowa
+            "Saint Kitts i Nevis", "Grenlandia", "Portoryko", "Bermudy",
+            "Kajmany", "Brytyjskie Wyspy Dziewicze", "Amerykańskie Wyspy Dziewicze",
+            "Turks i Caicos", "Anguilla", "Montserrat", "Aruba", "Curaçao",
+            "Sint Maarten", "Saint-Pierre i Miquelon", "Saint-Barthélemy",
+            "Saint-Martin"
+        ];
+
+        const SOUTH_AMERICA = [
             "Brazylia", "Argentyna", "Chile", "Peru", "Kolumbia", "Wenezuela",
             "Ekwador", "Boliwia", "Paragwaj", "Urugwaj", "Gujana", "Surinam",
-            // Oceania
+            "Falklandy", "Gujana Francuska"
+        ];
+
+        const OCEANIA = [
             "Australia", "Nowa Zelandia", "Papua-Nowa Gwinea", "Fidżi",
             "Vanuatu", "Wyspy Salomona", "Samoa", "Tonga", "Kiribati", "Tuvalu",
-            "Nauru", "Palau", "Mikronezja", "Wyspy Marshalla"
-        ];
-
-        const territories = [
-            "Grenlandia", "Portoryko", "Bermudy", "Hongkong", "Makau",
-            "Gibraltar", "Falklandy", "Kajmany", "Brytyjskie Wyspy Dziewicze",
-            "Amerykańskie Wyspy Dziewicze", "Turks i Caicos", "Anguilla",
-            "Montserrat", "Wyspa Man", "Guernsey", "Jersey", "Nowa Kaledonia",
-            "Polinezja Francuska", "Wyspy Owcze", "Aruba", "Curaçao",
-            "Sint Maarten", "Guam", "Samoa Amerykańskie",
+            "Nauru", "Palau", "Mikronezja", "Wyspy Marshalla", "Nowa Kaledonia",
+            "Polinezja Francuska", "Guam", "Samoa Amerykańskie",
             "Wyspy Mariany Północne", "Wyspa Bożego Narodzenia",
             "Wyspy Kokosowe", "Norfolk", "Tokelau", "Niue", "Wyspy Cooka",
-            "Reunion", "Majotta", "Gujana Francuska", "Saint-Pierre i Miquelon",
-            "Saint-Barthélemy", "Saint-Martin", "Wallis i Futuna",
-            "Akrotiri i Dhekelia", "Święta Helena, Wniebowstąpienia i Tristan da Cunha",
-            "Sahara Zachodnia", "Somaliland"
+            "Wallis i Futuna"
         ];
 
-        const allCountries = countries.concat(territories);
+        const CONTINENTS = [
+            { label: "Europa", list: EUROPE },
+            { label: "Azja", list: ASIA },
+            { label: "Afryka", list: AFRICA },
+            { label: "Ameryka Północna", list: NORTH_AMERICA },
+            { label: "Ameryka Południowa", list: SOUTH_AMERICA },
+            { label: "Oceania", list: OCEANIA }
+        ];
+
+        const allCountries = EUROPE.concat(ASIA, AFRICA, NORTH_AMERICA, SOUTH_AMERICA, OCEANIA);
 
         // ============================================================
         // STAN GRY
         // ============================================================
-        let phase = 1;            // 1 = wstępne wybory, 2 = pojedynki finałowe
-        let phase1Index = 0;      // 0..ROUND1_COUNT-1
-        let phase2Index = 0;      // 0..ROUND2_COUNT-1
-        let selectedPhase1 = [];  // państwa wybrane w rundzie 1 (max ROUND1_COUNT)
-        let phase2Pairs = [];     // pary do rundy 2, zbudowane z selectedPhase1
-        let finalTwelve = [];     // zwycięzcy rundy 2 (max ROUND2_COUNT)
+        let mode = 'medium';
+        let phase = 1;             // 1 = wybory wstępne, 2 = pojedynki finałowe
+        let phase1Queue = [];      // grupy rundy 1: [{ continent: string|null, pairs: [[a,b], ...] }]
+        let groupIndex = 0;
+        let pairIndexInGroup = 0;
+        let selectedPhase1 = [];   // wszystkie wybory z rundy 1 (bez powtórek)
+        let phase2Pairs = [];      // pary rundy 2, zbudowane z selectedPhase1
+        let phase2Index = 0;
+        let phase2Winners = [];    // zwycięzcy rundy 2
 
         const screenStart = document.getElementById('screen-start');
+        const screenMode = document.getElementById('screen-mode');
         const screenInterstitial = document.getElementById('screen-interstitial');
         const screenGame = document.getElementById('screen-game');
         const screenResult = document.getElementById('screen-result');
@@ -385,7 +475,7 @@
         const resultPlace3 = document.getElementById('result-place-3');
 
         function showScreen(screen) {
-            [screenStart, screenInterstitial, screenGame, screenResult].forEach(s => s.classList.remove('active'));
+            [screenStart, screenMode, screenInterstitial, screenGame, screenResult].forEach(s => s.classList.remove('active'));
             screen.classList.add('active');
         }
 
@@ -413,8 +503,7 @@
             return country;
         }
 
-        // Tasowanie tablicy (Fisher-Yates), żeby pary w rundzie 2 nie zależały
-        // od kolejności klikania w rundzie 1.
+        // Tasowanie tablicy (Fisher-Yates)
         function shuffle(array) {
             const copy = array.slice();
             for (let i = copy.length - 1; i > 0; i--) {
@@ -424,50 +513,97 @@
             return copy;
         }
 
-        function beginGame() {
-            phase = 1;
-            phase1Index = 0;
-            phase2Index = 0;
-            selectedPhase1 = [];
-            phase2Pairs = [];
-            finalTwelve = [];
-            showInterstitial(
-                'FAZA 1 Z 2',
-                'RUNDA 1',
-                ROUND1_COUNT + ' pojedynczych wyborów. Za każdym razem kliknij państwo, które bardziej Ci się podoba.',
-                () => { showScreen(screenGame); drawPhase1Round(); }
-            );
+        // Z tablicy państw robi listę par bez powtórek (nieparzysta reszta odpada)
+        function toPairs(list) {
+            const shuffled = shuffle(list);
+            const pairs = [];
+            for (let i = 0; i + 1 < shuffled.length; i += 2) {
+                pairs.push([shuffled[i], shuffled[i + 1]]);
+            }
+            return pairs;
         }
 
-        function startGame() {
-            showScreen(screenStart);
+        // Buduje kolejkę rundy 1 w zależności od wybranego trybu
+        function buildPhase1Queue(selectedMode) {
+            if (selectedMode === 'ultimate') {
+                return CONTINENTS.map(c => ({ continent: c.label, pairs: toPairs(c.list) }));
+            }
+            const total = MODE_ROUNDS[selectedMode];
+            const shuffled = shuffle(allCountries).slice(0, total * 2);
+            const pairs = [];
+            for (let i = 0; i < shuffled.length; i += 2) {
+                pairs.push([shuffled[i], shuffled[i + 1]]);
+            }
+            return [{ continent: null, pairs }];
+        }
+
+        function selectMode(chosenMode) {
+            mode = chosenMode;
+            phase = 1;
+            phase1Queue = buildPhase1Queue(mode);
+            groupIndex = 0;
+            pairIndexInGroup = 0;
+            selectedPhase1 = [];
+            phase2Pairs = [];
+            phase2Index = 0;
+            phase2Winners = [];
+
+            const firstGroup = phase1Queue[0];
+            if (firstGroup.continent) {
+                showInterstitial(
+                    'FAZA 1 Z 2',
+                    firstGroup.continent.toUpperCase(),
+                    'Wybieraj spośród państw i terytoriów kontynentu ' + firstGroup.continent + '.',
+                    () => { showScreen(screenGame); drawCurrentPair(); }
+                );
+            } else {
+                showInterstitial(
+                    'FAZA 1 Z 2',
+                    'RUNDA 1',
+                    firstGroup.pairs.length + ' pojedynczych wyborów. Za każdym razem kliknij państwo, które bardziej Ci się podoba.',
+                    () => { showScreen(screenGame); drawCurrentPair(); }
+                );
+            }
+        }
+
+        function backToModeSelect() {
+            showScreen(screenMode);
         }
 
         function updateRoundCounter(label, current, total) {
             roundCounter.innerText = label + ' \u00b7 ' + current + ' / ' + total;
         }
 
-        function drawPhase1Round() {
-            const country1 = getRandomCountry();
-            const country2 = getRandomDistinctFrom([country1]);
-            span1.innerText = country1;
-            span2.innerText = country2;
-            updateRoundCounter('RUNDA 1', phase1Index + 1, ROUND1_COUNT);
+        function drawCurrentPair() {
+            const group = phase1Queue[groupIndex];
+            const pair = group.pairs[pairIndexInGroup];
+            span1.innerText = pair[0];
+            span2.innerText = pair[1];
+            const label = group.continent ? group.continent.toUpperCase() : 'RUNDA 1';
+            updateRoundCounter(label, pairIndexInGroup + 1, group.pairs.length);
         }
 
         function drawPhase2Round() {
             const pair = phase2Pairs[phase2Index];
             span1.innerText = pair[0];
             span2.innerText = pair[1];
-            updateRoundCounter('RUNDA 2', phase2Index + 1, ROUND2_COUNT);
+            updateRoundCounter('RUNDA 2', phase2Index + 1, phase2Pairs.length);
         }
 
         function buildPhase2Pairs() {
-            const shuffled = shuffle(selectedPhase1);
-            phase2Pairs = [];
-            for (let i = 0; i < shuffled.length; i += 2) {
-                phase2Pairs.push([shuffled[i], shuffled[i + 1]]);
-            }
+            phase2Pairs = toPairs(selectedPhase1);
+        }
+
+        function goToPhase2() {
+            buildPhase2Pairs();
+            phase = 2;
+            phase2Index = 0;
+            showInterstitial(
+                'FAZA 2 Z 2',
+                'RUNDA 2',
+                'Twoje wybrane ' + selectedPhase1.length + ' państw zmierzą się teraz ze sobą w ' + phase2Pairs.length + ' pojedynkach.',
+                () => { showScreen(screenGame); drawPhase2Round(); }
+            );
         }
 
         function choose(which) {
@@ -475,24 +611,31 @@
 
             if (phase === 1) {
                 selectedPhase1.push(chosenCountry);
-                phase1Index++;
-                if (phase1Index >= ROUND1_COUNT) {
-                    buildPhase2Pairs();
-                    phase = 2;
-                    phase2Index = 0;
-                    showInterstitial(
-                        'FAZA 2 Z 2',
-                        'RUNDA 2',
-                        'Twoje wybrane ' + ROUND1_COUNT + ' państw zmierzą się teraz ze sobą w ' + ROUND2_COUNT + ' pojedynkach.',
-                        () => { showScreen(screenGame); drawPhase2Round(); }
-                    );
+                const group = phase1Queue[groupIndex];
+                pairIndexInGroup++;
+
+                if (pairIndexInGroup >= group.pairs.length) {
+                    groupIndex++;
+                    pairIndexInGroup = 0;
+
+                    if (groupIndex >= phase1Queue.length) {
+                        goToPhase2();
+                    } else {
+                        const nextGroup = phase1Queue[groupIndex];
+                        showInterstitial(
+                            'FAZA 1 Z 2',
+                            nextGroup.continent.toUpperCase(),
+                            'Wybieraj spośród państw i terytoriów kontynentu ' + nextGroup.continent + '.',
+                            () => { showScreen(screenGame); drawCurrentPair(); }
+                        );
+                    }
                 } else {
-                    drawPhase1Round();
+                    drawCurrentPair();
                 }
             } else {
-                finalTwelve.push(chosenCountry);
+                phase2Winners.push(chosenCountry);
                 phase2Index++;
-                if (phase2Index >= ROUND2_COUNT) {
+                if (phase2Index >= phase2Pairs.length) {
                     showResult();
                 } else {
                     drawPhase2Round();
@@ -501,8 +644,8 @@
         }
 
         function showResult() {
-            // 1 miejsce: losowe państwo spośród 12 finalistów rundy 2.
-            const place1 = finalTwelve[Math.floor(Math.random() * finalTwelve.length)];
+            // 1 miejsce: losowe państwo spośród zwycięzców rundy 2.
+            const place1 = phase2Winners[Math.floor(Math.random() * phase2Winners.length)];
             // 2 i 3 miejsce: całkowicie losowe państwa z całej bazy, niezależne od gry.
             const place2 = getRandomDistinctFrom([place1]);
             const place3 = getRandomDistinctFrom([place1, place2]);

@@ -218,20 +218,34 @@
             text-align: center; white-space: nowrap;
         }
 
+        .star-particle {
+            position: fixed;
+            width: 48px; height: 48px;
+            pointer-events: none;
+            z-index: 200;
+            image-rendering: pixelated;
+            animation: starPop 0.65s ease-out forwards;
+        }
+        @keyframes starPop {
+            0%   { opacity: 0; transform: scale(0.4) translate(0, 0); }
+            20%  { opacity: 1; }
+            100% { opacity: 0; transform: scale(1) translate(var(--dx), var(--dy)); }
+        }
+
         /* ---------- EKRAN WYNIKU ---------- */
         #screen-result {
             flex-direction: column; align-items: center;
-            padding-top: calc(var(--grid-cell) * 1.9);
+            padding-top: calc(var(--grid-cell) * 1.5);
             background-color: var(--bg);
             text-align: center;
             position: relative;
         }
         #screen-result h2 {
             font-family: var(--font-display);
-            font-size: clamp(0.8rem, 3.4vw, 1rem);
+            font-size: clamp(0.75rem, 3.2vw, 0.95rem);
             color: #a8a8a8;
             letter-spacing: 1px;
-            margin-bottom: 26px;
+            margin-bottom: 20px;
             padding: 0 20px;
         }
         .result-place {
@@ -242,21 +256,37 @@
             font-family: var(--font-display);
             color: #7f7f7f;
             letter-spacing: 1px;
+            text-transform: none;
         }
         .place-country {
             font-family: var(--font-display);
             text-transform: uppercase;
             letter-spacing: 1px;
         }
-        .place-1 { margin-bottom: 20px; }
-        .place-1 .place-label { font-size: 0.6rem; margin-bottom: 8px; }
-        .place-1 .place-country { font-size: clamp(1.5rem, 7.5vw, 2.4rem); color: #ffd166; }
-        .place-2 { margin-bottom: 14px; }
-        .place-2 .place-label { font-size: 0.55rem; margin-bottom: 6px; }
-        .place-2 .place-country { font-size: clamp(1.1rem, 5.5vw, 1.6rem); color: #d9d9d9; }
-        .place-3 { margin-bottom: 14px; }
-        .place-3 .place-label { font-size: 0.5rem; margin-bottom: 6px; }
-        .place-3 .place-country { font-size: clamp(0.95rem, 4.6vw, 1.3rem); color: #b08d57; }
+        .place-1 { margin-bottom: 16px; }
+        .place-1 .place-label { font-size: 0.55rem; margin-bottom: 7px; }
+        .place-1 .place-country { font-size: clamp(1.3rem, 6.8vw, 2.1rem); color: #ffd166; }
+        .place-2 { margin-bottom: 12px; }
+        .place-2 .place-label { font-size: 0.5rem; margin-bottom: 5px; }
+        .place-2 .place-country { font-size: clamp(1rem, 5vw, 1.45rem); color: #d9d9d9; }
+        .place-3 { margin-bottom: 12px; }
+        .place-3 .place-label { font-size: 0.46rem; margin-bottom: 5px; }
+        .place-3 .place-country { font-size: clamp(0.9rem, 4.3vw, 1.2rem); color: #b08d57; }
+        .place-4 { margin-bottom: 12px; }
+        .place-4 .place-label { font-size: 0.42rem; margin-bottom: 5px; }
+        .place-4 .place-country { font-size: clamp(0.85rem, 3.8vw, 1.05rem); color: #7fb0c9; }
+
+        .heading-star {
+            width: 16px; height: 16px;
+            vertical-align: middle;
+            margin: 0 8px;
+            image-rendering: pixelated;
+        }
+        .place1-star {
+            width: 30px; height: 30px;
+            margin-bottom: 4px;
+            image-rendering: pixelated;
+        }
 
         #result-earth-wrap {
             position: absolute; bottom: -22%; left: 50%; transform: translateX(-50%);
@@ -266,7 +296,10 @@
         }
         #result-earth { position: relative; z-index: 100; width: 86%; height: auto; image-rendering: pixelated; }
 
-        #restart-btn { position: relative; z-index: 2; margin-top: 6px; }
+        #restart-btn { position: relative; z-index: 2; margin-top: 4px; }
+        @media (max-width: 767px) {
+            #restart-btn { margin-bottom: 36px; }
+        }
     </style>
 </head>
 <body>
@@ -290,19 +323,19 @@
         <div class="mode-list">
             <button class="mode-btn" onclick="selectMode('short')">
                 <span class="mode-name">Krótki</span>
-                <span class="mode-detail">12 rund</span>
+                <span class="mode-detail">12 rund, 2 fazy</span>
             </button>
             <button class="mode-btn" onclick="selectMode('medium')">
                 <span class="mode-name">Średni</span>
-                <span class="mode-detail">24 rundy</span>
+                <span class="mode-detail">24 rundy, 2 fazy</span>
             </button>
             <button class="mode-btn" onclick="selectMode('long')">
                 <span class="mode-name">Długi</span>
-                <span class="mode-detail">36 rund</span>
+                <span class="mode-detail">36 rund, 3 fazy</span>
             </button>
             <button class="mode-btn" onclick="selectMode('ultimate')">
                 <span class="mode-name">Ultimate</span>
-                <span class="mode-detail">Wszystkie kraje i terytoria, kontynent po kontynencie</span>
+                <span class="mode-detail">Wszystkie kraje i terytoria, kontynent po kontynencie, 3 fazy, 4 miejsca</span>
             </button>
         </div>
     </div>
@@ -319,26 +352,31 @@
     <!-- Ekran gry -->
     <div id="screen-game" class="screen">
         <div id="round-counter"></div>
-        <button id="btn-1" class="choice-btn" onclick="choose(1)"><span></span></button>
+        <button id="btn-1" class="choice-btn" onclick="choose(1, event)"><span></span></button>
         <img src="Ziemia.gif" id="game-earth" alt="">
-        <button id="btn-2" class="choice-btn" onclick="choose(2)"><span></span></button>
+        <button id="btn-2" class="choice-btn" onclick="choose(2, event)"><span></span></button>
     </div>
 
     <!-- Ekran finałowy -->
     <div id="screen-result" class="screen">
-        <h2>Twoje wymarzone państwa to</h2>
+        <h2 id="result-heading"><img class="heading-star" src="gwiazdka.gif" alt="">Twoje wymarzone państwa to<img class="heading-star" src="gwiazdka.gif" alt=""></h2>
 
         <div class="result-place place-1">
-            <span class="place-label">1 miejsce</span>
+            <img class="place1-star" src="gwiazdka.gif" alt="">
+            <span class="place-label" id="result-label-1"></span>
             <span class="place-country" id="result-place-1"></span>
         </div>
         <div class="result-place place-2">
-            <span class="place-label">2 miejsce</span>
+            <span class="place-label" id="result-label-2"></span>
             <span class="place-country" id="result-place-2"></span>
         </div>
         <div class="result-place place-3">
-            <span class="place-label">3 miejsce</span>
+            <span class="place-label" id="result-label-3"></span>
             <span class="place-country" id="result-place-3"></span>
+        </div>
+        <div class="result-place place-4" id="result-block-4">
+            <span class="place-label" id="result-label-4"></span>
+            <span class="place-country" id="result-place-4"></span>
         </div>
 
         <div id="result-earth-wrap">
@@ -351,11 +389,20 @@
         // ============================================================
         // TRYBY GRY
         // ============================================================
-        // short/medium/long: N pojedynczych wyborów z całej puli państw i
-        // terytoriów, bez powtórek (każde państwo pojawia się maks. raz
-        // w rundzie 1). ultimate: idziemy kontynent po kontynencie -
-        // każdy kontynent to osobna "podrunda" bez powtórek wewnątrz siebie.
+        // short/medium: 2 fazy (wybory wstępne + finałowy pojedynek).
+        // long/ultimate: 3 fazy (wybory wstępne + dwie rundy finałowe) -
+        // miejsca na wyniku są wtedy losowane spośród faktycznych
+        // zwycięzców fazy 3, a nie z całej bazy państw.
         const MODE_ROUNDS = { short: 12, medium: 24, long: 36 };
+        const EXTRA_PHASE_MODES = ['long', 'ultimate']; // te tryby mają 3 fazy
+
+        const DEFAULT_LABELS = ['1 miejsce', '2 miejsce', '3 miejsce', '4 miejsce'];
+        const ULTIMATE_LABELS = [
+            'Twoje serce leży w',
+            'Twoja dusza należy do',
+            'Twoje stopy prowadzą cię do',
+            'Twoje zdrowie należy do'
+        ];
 
         // ============================================================
         // BAZA PAŃSTW I TERYTORIÓW, POGRUPOWANA KONTYNENTAMI
@@ -445,14 +492,18 @@
         // STAN GRY
         // ============================================================
         let mode = 'medium';
-        let phase = 1;             // 1 = wybory wstępne, 2 = pojedynki finałowe
-        let phase1Queue = [];      // grupy rundy 1: [{ continent: string|null, pairs: [[a,b], ...] }]
+        let totalPhases = 2;
+        let phase = 1;              // aktualna faza: 1..totalPhases
+        let phase1Queue = [];       // grupy fazy 1: [{ continent: string|null, pairs: [[a,b], ...] }]
         let groupIndex = 0;
         let pairIndexInGroup = 0;
-        let selectedPhase1 = [];   // wszystkie wybory z rundy 1 (bez powtórek)
-        let phase2Pairs = [];      // pary rundy 2, zbudowane z selectedPhase1
+        let selectedPhase1 = [];    // wszystkie wybory z fazy 1 (bez powtórek)
+        let phase2Pairs = [];
         let phase2Index = 0;
-        let phase2Winners = [];    // zwycięzcy rundy 2
+        let phase2Winners = [];
+        let phase3Pairs = [];
+        let phase3Index = 0;
+        let phase3Winners = [];
 
         const screenStart = document.getElementById('screen-start');
         const screenMode = document.getElementById('screen-mode');
@@ -470,9 +521,25 @@
         const span1 = btn1.querySelector('span');
         const span2 = btn2.querySelector('span');
         const roundCounter = document.getElementById('round-counter');
-        const resultPlace1 = document.getElementById('result-place-1');
-        const resultPlace2 = document.getElementById('result-place-2');
-        const resultPlace3 = document.getElementById('result-place-3');
+
+        const resultLabels = [
+            document.getElementById('result-label-1'),
+            document.getElementById('result-label-2'),
+            document.getElementById('result-label-3'),
+            document.getElementById('result-label-4')
+        ];
+        const resultCountries = [
+            document.getElementById('result-place-1'),
+            document.getElementById('result-place-2'),
+            document.getElementById('result-place-3'),
+            document.getElementById('result-place-4')
+        ];
+        const resultBlocks = [
+            document.querySelector('.place-1'),
+            document.querySelector('.place-2'),
+            document.querySelector('.place-3'),
+            document.getElementById('result-block-4')
+        ];
 
         function showScreen(screen) {
             [screenStart, screenMode, screenInterstitial, screenGame, screenResult].forEach(s => s.classList.remove('active'));
@@ -523,7 +590,35 @@
             return pairs;
         }
 
-        // Buduje kolejkę rundy 1 w zależności od wybranego trybu
+        // Losuje n różnych elementów z puli (bez powtórek)
+        function pickDistinctRandom(pool, n) {
+            return shuffle(pool).slice(0, n);
+        }
+
+        // Tworzy 2-4 gwiazdki w miejscu kliknięcia, rozstawione w siatce
+        // (góra / prawo / dół / lewo), zgodnie z pikselową, blokową stylistyką.
+        function spawnStars(x, y) {
+            const step = 52; // stały odstęp siatki, bez losowych skosów
+            const directions = shuffle([
+                [0, -step], [step, 0], [0, step], [-step, 0]
+            ]);
+            const count = 2 + Math.floor(Math.random() * 3); // 2 do 4
+            for (let i = 0; i < count; i++) {
+                const [dx, dy] = directions[i % directions.length];
+                const star = document.createElement('img');
+                star.src = 'gwiazdka.gif';
+                star.alt = '';
+                star.className = 'star-particle';
+                star.style.left = (x - 24) + 'px';
+                star.style.top = (y - 24) + 'px';
+                star.style.setProperty('--dx', dx + 'px');
+                star.style.setProperty('--dy', dy + 'px');
+                document.body.appendChild(star);
+                setTimeout(() => star.remove(), 700);
+            }
+        }
+
+        // Buduje kolejkę fazy 1 w zależności od wybranego trybu
         function buildPhase1Queue(selectedMode) {
             if (selectedMode === 'ultimate') {
                 return CONTINENTS.map(c => ({ continent: c.label, pairs: toPairs(c.list) }));
@@ -539,26 +634,26 @@
 
         function selectMode(chosenMode) {
             mode = chosenMode;
+            totalPhases = EXTRA_PHASE_MODES.includes(mode) ? 3 : 2;
             phase = 1;
             phase1Queue = buildPhase1Queue(mode);
             groupIndex = 0;
             pairIndexInGroup = 0;
             selectedPhase1 = [];
-            phase2Pairs = [];
-            phase2Index = 0;
-            phase2Winners = [];
+            phase2Pairs = []; phase2Index = 0; phase2Winners = [];
+            phase3Pairs = []; phase3Index = 0; phase3Winners = [];
 
             const firstGroup = phase1Queue[0];
             if (firstGroup.continent) {
                 showInterstitial(
-                    'FAZA 1 Z 2',
+                    'FAZA 1 Z ' + totalPhases,
                     firstGroup.continent.toUpperCase(),
                     'Wybieraj spośród państw i terytoriów kontynentu ' + firstGroup.continent + '.',
                     () => { showScreen(screenGame); drawCurrentPair(); }
                 );
             } else {
                 showInterstitial(
-                    'FAZA 1 Z 2',
+                    'FAZA 1 Z ' + totalPhases,
                     'RUNDA 1',
                     firstGroup.pairs.length + ' pojedynczych wyborów. Za każdym razem kliknij państwo, które bardziej Ci się podoba.',
                     () => { showScreen(screenGame); drawCurrentPair(); }
@@ -590,24 +685,45 @@
             updateRoundCounter('RUNDA 2', phase2Index + 1, phase2Pairs.length);
         }
 
-        function buildPhase2Pairs() {
-            phase2Pairs = toPairs(selectedPhase1);
+        function drawPhase3Round() {
+            const pair = phase3Pairs[phase3Index];
+            span1.innerText = pair[0];
+            span2.innerText = pair[1];
+            updateRoundCounter('RUNDA 3', phase3Index + 1, phase3Pairs.length);
         }
 
         function goToPhase2() {
-            buildPhase2Pairs();
+            phase2Pairs = toPairs(selectedPhase1);
             phase = 2;
             phase2Index = 0;
             showInterstitial(
-                'FAZA 2 Z 2',
+                'FAZA 2 Z ' + totalPhases,
                 'RUNDA 2',
                 'Twoje wybrane ' + selectedPhase1.length + ' państw zmierzą się teraz ze sobą w ' + phase2Pairs.length + ' pojedynkach.',
                 () => { showScreen(screenGame); drawPhase2Round(); }
             );
         }
 
-        function choose(which) {
+        function goToPhase3() {
+            phase3Pairs = toPairs(phase2Winners);
+            phase = 3;
+            phase3Index = 0;
+            showInterstitial(
+                'FAZA 3 Z ' + totalPhases,
+                'RUNDA 3',
+                'Ostatnia prosta - ' + phase2Winners.length + ' zwycięzców walczy o finałową ' + phase3Pairs.length + '.',
+                () => { showScreen(screenGame); drawPhase3Round(); }
+            );
+        }
+
+        function choose(which, evt) {
             const chosenCountry = which === 1 ? span1.innerText : span2.innerText;
+
+            if (evt) {
+                const x = evt.clientX || (evt.touches && evt.touches[0] && evt.touches[0].clientX) || window.innerWidth / 2;
+                const y = evt.clientY || (evt.touches && evt.touches[0] && evt.touches[0].clientY) || window.innerHeight / 2;
+                spawnStars(x, y);
+            }
 
             if (phase === 1) {
                 selectedPhase1.push(chosenCountry);
@@ -623,7 +739,7 @@
                     } else {
                         const nextGroup = phase1Queue[groupIndex];
                         showInterstitial(
-                            'FAZA 1 Z 2',
+                            'FAZA 1 Z ' + totalPhases,
                             nextGroup.continent.toUpperCase(),
                             'Wybieraj spośród państw i terytoriów kontynentu ' + nextGroup.continent + '.',
                             () => { showScreen(screenGame); drawCurrentPair(); }
@@ -632,29 +748,56 @@
                 } else {
                     drawCurrentPair();
                 }
-            } else {
+            } else if (phase === 2) {
                 phase2Winners.push(chosenCountry);
                 phase2Index++;
                 if (phase2Index >= phase2Pairs.length) {
-                    showResult();
+                    if (totalPhases >= 3) {
+                        goToPhase3();
+                    } else {
+                        showResult();
+                    }
                 } else {
                     drawPhase2Round();
+                }
+            } else {
+                phase3Winners.push(chosenCountry);
+                phase3Index++;
+                if (phase3Index >= phase3Pairs.length) {
+                    showResult();
+                } else {
+                    drawPhase3Round();
                 }
             }
         }
 
-        function showResult() {
-            // 1 miejsce: losowe państwo spośród zwycięzców rundy 2.
-            const place1 = phase2Winners[Math.floor(Math.random() * phase2Winners.length)];
-            // 2 i 3 miejsce: całkowicie losowe państwa z całej bazy, niezależne od gry.
-            const place2 = getRandomDistinctFrom([place1]);
-            const place3 = getRandomDistinctFrom([place1, place2]);
-
-            resultPlace1.innerText = place1;
-            resultPlace2.innerText = place2;
-            resultPlace3.innerText = place3;
-
+        function renderResult(places) {
+            const labels = mode === 'ultimate' ? ULTIMATE_LABELS : DEFAULT_LABELS;
+            for (let i = 0; i < 4; i++) {
+                if (i < places.length) {
+                    resultBlocks[i].style.display = 'flex';
+                    resultLabels[i].innerText = labels[i];
+                    resultCountries[i].innerText = places[i];
+                } else {
+                    resultBlocks[i].style.display = 'none';
+                }
+            }
             showScreen(screenResult);
+        }
+
+        function showResult() {
+            if (totalPhases >= 3) {
+                // Miejsca losowane spośród realnych zwycięzców fazy 3.
+                const numPlaces = mode === 'ultimate' ? 4 : 3;
+                const places = pickDistinctRandom(phase3Winners, numPlaces);
+                renderResult(places);
+            } else {
+                // Tryb krótki/średni: 1 miejsce z rundy 2, reszta w pełni losowa.
+                const place1 = phase2Winners[Math.floor(Math.random() * phase2Winners.length)];
+                const place2 = getRandomDistinctFrom([place1]);
+                const place3 = getRandomDistinctFrom([place1, place2]);
+                renderResult([place1, place2, place3]);
+            }
         }
     </script>
 </body>
